@@ -1,5 +1,5 @@
-export const UserRoles = {
-  customer: "CUSTOMER",
-  provider: "PROVIDER",
+export const ROLE = {
   admin: "ADMIN",
+  provider: "PROVIDER",
+  customer: "CUSTOMER",
 };

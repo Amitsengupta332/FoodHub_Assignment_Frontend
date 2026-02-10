@@ -11,7 +11,6 @@ import {
 import {
   Field,
   FieldDescription,
-  FieldError,
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field";
@@ -52,6 +51,9 @@ export function LoginForm({
     },
   });
 
+  const session = authClient.useSession();
+  console.log(session);
+
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
@@ -69,62 +71,34 @@ export function LoginForm({
               form.handleSubmit();
             }}>
             <FieldGroup>
-              <form.Field
-                name="email"
-                children={(field) => {
-                  const isInvalid =
-                    field.state.meta.isTouched && !field.state.meta.isValid;
-                  return (
-                    <Field>
-                      <FieldLabel htmlFor={field.name}>Email</FieldLabel>
-                      <Input
-                        type="email"
-                        id={field.name}
-                        name={field.name}
-                        value={field.state.value}
-                        placeholder="Enter Your Email"
-                        onChange={(e) => field.handleChange(e.target.value)}
-                      />
-                      {isInvalid && (
-                        <FieldError errors={field.state.meta.errors} />
-                      )}
-                    </Field>
-                  );
-                }}
-              />
-              <form.Field
-                name="password"
-                children={(field) => {
-                  const isInvalid =
-                    field.state.meta.isTouched && !field.state.meta.isValid;
-                  return (
-                    <Field>
-                      <FieldLabel htmlFor={field.name}>Password</FieldLabel>
-                      <Input
-                        type="password"
-                        id={field.name}
-                        name={field.name}
-                        value={field.state.value}
-                        placeholder="Enter Your Password"
-                        onChange={(e) => field.handleChange(e.target.value)}
-                      />
-                      {isInvalid && (
-                        <FieldError errors={field.state.meta.errors} />
-                      )}
-                    </Field>
-                  );
-                }}
-              />
-
               <Field>
-                <Button id="login-form" type="submit">
-                  Login
-                </Button>
+                <FieldLabel htmlFor="email">Email</FieldLabel>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="m@example.com"
+                  required
+                />
+              </Field>
+              <Field>
+                <div className="flex items-center">
+                  <FieldLabel htmlFor="password">Password</FieldLabel>
+                  <a
+                    href="#"
+                    className="ml-auto inline-block text-sm underline-offset-4 hover:underline">
+                    Forgot your password?
+                  </a>
+                </div>
+                <Input id="password" type="password" required />
+              </Field>
+              <Field>
+                <Button type="submit">Login</Button>
                 {/* <Button variant="outline" type="button">
                   Login with Google
                 </Button> */}
                 <FieldDescription className="text-center">
-                  Don&apos;t have an account? <a href="/register">Sign up</a>
+                  Don&apos;t have an account?{" "}
+                  <Link href="/register">Sign up</Link>
                 </FieldDescription>
               </Field>
             </FieldGroup>
