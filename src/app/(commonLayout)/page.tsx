@@ -1,3 +1,4 @@
+import { Hero7 } from "@/components/modules/homepage/hero7";
 import { Button } from "@/components/ui/button";
 import { cookies } from "next/headers";
 
@@ -23,10 +24,8 @@ export default async function Home() {
   // const session = await authClient.getSession();
   // console.log("Session Data:", session);
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <div>
-        <Button>Click me</Button>
-      </div>
+    <div>
+      <Hero7 />
     </div>
   );
 }
