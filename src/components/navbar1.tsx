@@ -56,11 +56,13 @@ interface Navbar1Props {
 
 const Navbar1 = ({
   logo = {
-    url: "https://www.shadcnblocks.com",
-    src: "https://deifkwefumgah.cloudfront.net/shadcnblocks/block/logos/shadcnblockscom-icon.svg",
+    url: "/",
+    src: "https://i.ibb.co.com/wFdsNkGn/foodhub.png",
     alt: "logo",
     title: "FoodHub",
   },
+
+ 
   menu = [
     { title: "Home", url: "/" },
     {
@@ -79,6 +81,11 @@ const Navbar1 = ({
   className,
   user = null,
 }: Navbar1Props) => {
+  
+
+
+
+
   return (
     <section className={cn("py-4 ", className)}>
       <div className="container mx-auto px-4">
