@@ -30,48 +30,45 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-const registerSchema = z.object({
+
+export const registerSchema = z.object({
   name: z.string().min(1, "This field is required"),
-  password: z.string().min(8, "Minimum length is 8"),
-  email: z.email(),
+  email: z.email().min(1, "This field is required"),
+  password: z.string().min(8, "Must be at least 8 characters long."),
+  role: z.enum(["CUSTOMER", "PROVIDER"]),
 });
 
-export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
+export function SignupForm({ className, ...props }: React.ComponentProps<typeof Card>) {
   const router = useRouter();
   const form = useForm({
     defaultValues: {
       name: "",
       email: "",
       password: "",
+      role: "",
     },
     validators: {
       onSubmit: registerSchema,
     },
     onSubmit: async ({ value }) => {
-      const toastId = toast.loading("Creating user");
+      const toastId = toast.loading(`Creating ${value.role}...`);
       try {
         const { data, error } = await authClient.signUp.email(value);
-
-        // if (error) {
-        //   toast.error(error.message, { id: toastId });
-        //   return;
-        // }
-
         if (error && data === null) {
           toast.error(error.message, { id: toastId });
         }
         if (data !== null) {
-          toast.success(`signup successfully`, { id: toastId });
-          router.push("/");
-          router.refresh();
+          toast.success(`${value.role} created successfully`, { id: toastId });
+          router.push("/login");
         }
-
-        toast.success("User Created Successfully", { id: toastId });
-      } catch (err) {
-        toast.error("Something went wrong, please try again.", { id: toastId });
+      } catch (error) {
+        toast.error(`${value.role} Creation field, Please try again`, {
+          id: toastId,
+        });
       }
     },
   });
+  
   return (
     <Card {...props}>
       <CardHeader>
@@ -158,7 +155,7 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
                 );
               }}
             />
-            {/* <form.Field
+            <form.Field
               name="role"
               children={(field) => {
                 const isInvalid =
@@ -186,7 +183,7 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
                   </Field>
                 );
               }}
-            /> */}
+            />
 
             <CardFooter>
               <Button className="w-full" id="register-form" type="submit">
