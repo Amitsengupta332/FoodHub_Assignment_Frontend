@@ -1,0 +1,50 @@
+// "use server";
+
+// import { categoryService } from "@/services/category.service";
+
+// export async function getCategories(
+//   params: {
+//     search?: string;
+//     page?: string;
+//     limit?: string;
+//     sortBy?: string;
+//     sortOrder?: string;
+//   },
+//   options?: { revalidate?: number },
+// ) {
+//   return await categoryService.getAll(params, options);
+// }
+
+ 
+// export async function createCategory(data: {
+//   name: string;
+//   emoji: string;
+//   image: string;
+// }) {
+//   return await categoryService.create(data);
+// }
+
+// export async function updateCategory(data: {
+//   id: string;
+//   name: string;
+//   emoji: string;
+//   image: string;
+// }) {
+//   return await categoryService.update(data);
+// }
+
+// export async function deleteCategory(id: string) {
+//   return await categoryService.delete(id);
+// }
+
+
+
+
+
+"use server";
+
+import { categoryService } from "@/services/category.service";
+
+export async function getCategories() {
+  return await categoryService.getAll();
+}

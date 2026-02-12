@@ -1,3 +1,6 @@
+import Categories from "@/components/modules/homepage/Categories";
+import CategoriesSection from "@/components/modules/homepage/categories-section";
+ 
 import { Hero7 } from "@/components/modules/homepage/hero7";
 import HowItWorks from "@/components/modules/homepage/HowItWorks";
 import { Button } from "@/components/ui/button";
@@ -27,6 +30,9 @@ export default async function Home() {
   return (
     <div>
       <Hero7 />
+      <Categories/>
+       {/* <CategoriesSection /> */}
+      {/* <CategoriesSection/> */}
       <HowItWorks />
     </div>
   );
