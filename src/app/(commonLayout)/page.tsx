@@ -1,4 +1,5 @@
 import { Hero7 } from "@/components/modules/homepage/hero7";
+import HowItWorks from "@/components/modules/homepage/HowItWorks";
 import { Button } from "@/components/ui/button";
 import { cookies } from "next/headers";
 
@@ -26,6 +27,7 @@ export default async function Home() {
   return (
     <div>
       <Hero7 />
+      <HowItWorks />
     </div>
   );
 }
