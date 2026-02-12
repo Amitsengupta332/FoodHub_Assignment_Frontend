@@ -1,5 +1,6 @@
 import Categories from "@/components/modules/homepage/Categories";
 import CategoriesSection from "@/components/modules/homepage/categories-section";
+import FeaturedMeals from "@/components/modules/homepage/FeaturedMeals";
  
 import { Hero7 } from "@/components/modules/homepage/hero7";
 import HowItWorks from "@/components/modules/homepage/HowItWorks";
@@ -31,6 +32,7 @@ export default async function Home() {
     <div>
       <Hero7 />
       <Categories/>
+      <FeaturedMeals/>
        {/* <CategoriesSection /> */}
       {/* <CategoriesSection/> */}
       <HowItWorks />
