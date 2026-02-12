@@ -1,3 +1,4 @@
+import { Footer2 } from "@/components/footer2";
 import { Navbar1 } from "@/components/navbar1";
 
 export default function Layout({
@@ -12,9 +13,9 @@ export default function Layout({
       </div>
       <div>{children}</div>
 
-      {/* <div>
-        <Footer></Footer>
-      </div> */}
+      <div>
+        <Footer2/>
+      </div>
     </div>
   );
 }
