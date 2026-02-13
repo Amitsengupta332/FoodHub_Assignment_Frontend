@@ -21,7 +21,7 @@ import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "@tanstack/react-form";
-import { toast } from "sonner";
+
 import { authClient } from "@/lib/auth-client";
 import {
   Select,
@@ -30,6 +30,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import Swal from "sweetalert2";
 const registerSchema = z.object({
   name: z.string().min(1, "This field is required"),
   password: z.string().min(8, "Minimum length is 8"),
@@ -47,28 +48,72 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
     validators: {
       onSubmit: registerSchema,
     },
+    // onSubmit: async ({ value }) => {
+    //   const toastId = toast.loading("Creating user");
+    //   try {
+    //     const { data, error } = await authClient.signUp.email(value);
+
+    //     // if (error) {
+    //     //   toast.error(error.message, { id: toastId });
+    //     //   return;
+    //     // }
+
+    //     if (error && data === null) {
+    //       toast.error(error.message, { id: toastId });
+    //     }
+    //     if (data !== null) {
+    //       toast.success(`signup successfully`, { id: toastId });
+    //       router.push("/");
+    //       router.refresh();
+    //     }
+
+    //     toast.success("User Created Successfully", { id: toastId });
+    //   } catch (err) {
+    //     toast.error("Something went wrong, please try again.", { id: toastId });
+    //   }
+    // },
+
     onSubmit: async ({ value }) => {
-      const toastId = toast.loading("Creating user");
       try {
+        // 🔄 Loading popup
+        Swal.fire({
+          title: "Creating Account...",
+          text: "Please wait while we create your account.",
+          allowOutsideClick: false,
+          didOpen: () => {
+            Swal.showLoading();
+          },
+        });
+
         const { data, error } = await authClient.signUp.email(value);
 
-        // if (error) {
-        //   toast.error(error.message, { id: toastId });
-        //   return;
-        // }
-
         if (error && data === null) {
-          toast.error(error.message, { id: toastId });
+          Swal.fire({
+            icon: "error",
+            title: "Signup Failed",
+            text: error.message,
+          });
+          return;
         }
+
         if (data !== null) {
-          toast.success(`signup successfully`, { id: toastId });
+          await Swal.fire({
+            icon: "success",
+            title: "Account Created 🎉",
+            text: "Your account has been created successfully!",
+            timer: 1500,
+            showConfirmButton: false,
+          });
+
           router.push("/");
           router.refresh();
         }
-
-        toast.success("User Created Successfully", { id: toastId });
       } catch (err) {
-        toast.error("Something went wrong, please try again.", { id: toastId });
+        Swal.fire({
+          icon: "error",
+          title: "Something went wrong",
+          text: "Please try again later.",
+        });
       }
     },
   });

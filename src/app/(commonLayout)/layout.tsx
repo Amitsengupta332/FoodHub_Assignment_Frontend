@@ -1,20 +1,24 @@
+import { getCurrentUser } from "@/actions/user.action";
 import { Footer2 } from "@/components/footer2";
 import { Navbar1 } from "@/components/navbar1";
 
-export default function Layout({
+export default async function Layout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const user = await getCurrentUser();
+  console.log("user", user);
   return (
     <div>
       <div>
-        <Navbar1></Navbar1>
+        {/* user={session?.user} */}
+        <Navbar1 user={user} />
       </div>
       <div>{children}</div>
 
       <div>
-        <Footer2/>
+        <Footer2 />
       </div>
     </div>
   );

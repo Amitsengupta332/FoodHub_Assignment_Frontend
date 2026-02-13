@@ -24,7 +24,7 @@ export default async function Home() {
   });
 
   const session = await res.json();
-  console.log(session);
+  console.log("page session: ",session);
 
   // const session = await authClient.getSession();
   // console.log("Session Data:", session);

@@ -20,7 +20,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 import { useForm } from "@tanstack/react-form";
-import { toast } from "sonner";
+
+import Swal from "sweetalert2";
 export function LoginForm({
   className,
   ...props
@@ -31,22 +32,66 @@ export function LoginForm({
       email: "",
       password: "",
     },
+    // onSubmit: async ({ value }) => {
+    //   const toastId = toast.loading(`Loading...`);
+    //   try {
+    //     const { data, error } = await authClient.signIn.email(value);
+    //     console.log(data, error);
+    //     if (error && data === null) {
+    //       toast.error(error.message, { id: toastId });
+    //     }
+    //     if (data !== null) {
+    //       toast.success(`Login successfully`, { id: toastId });
+    //       router.push("/");
+    //       router.refresh();
+    //     }
+    //   } catch (error) {
+    //     toast.error(`Login field, Please try again`, {
+    //       id: toastId,
+    //     });
+    //   }
+    // },
+
     onSubmit: async ({ value }) => {
-      const toastId = toast.loading(`Loading...`);
       try {
+        // 🔄 Loading alert
+        Swal.fire({
+          title: "Logging in...",
+          text: "Please wait while we verify your credentials.",
+          allowOutsideClick: false,
+          didOpen: () => {
+            Swal.showLoading();
+          },
+        });
+
         const { data, error } = await authClient.signIn.email(value);
-        console.log(data, error);
+
         if (error && data === null) {
-          toast.error(error.message, { id: toastId });
+          Swal.fire({
+            icon: "error",
+            title: "Login Failed",
+            text: error.message,
+          });
+          return;
         }
+
         if (data !== null) {
-          toast.success(`Login successfully`, { id: toastId });
+          Swal.fire({
+            icon: "success",
+            title: "Login Successful 🎉",
+            text: "Welcome back!",
+            timer: 1500,
+            showConfirmButton: false,
+          });
+
           router.push("/");
           router.refresh();
         }
       } catch (error) {
-        toast.error(`Login field, Please try again`, {
-          id: toastId,
+        Swal.fire({
+          icon: "error",
+          title: "Something went wrong",
+          text: "Login failed, please try again.",
         });
       }
     },
@@ -124,7 +169,8 @@ export function LoginForm({
                   Login with Google
                 </Button> */}
                 <FieldDescription className="text-center">
-                  Don&apos;t have an account? <a href="/register">Sign up</a>
+                  Don&apos;t have an account?{" "}
+                  <Link href="/register">Sign up</Link>
                 </FieldDescription>
               </Field>
             </FieldGroup>
