@@ -1,7 +1,13 @@
+import { getCategories } from '@/actions/category.actions';
+import ManageCategories from '@/components/modules/dashboard/manage.categories';
 import React from 'react'
 
-export default function CategoriesDashboard() {
+export default async function  CategoriesDashboard() {
+  const categories = await getCategories();
+
   return (
-    <div>CategoriesDashboard</div>
-  )
+    <div>
+      <ManageCategories item={categories.data}></ManageCategories>
+    </div>
+  );
 }

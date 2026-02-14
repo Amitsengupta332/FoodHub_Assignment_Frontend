@@ -34,7 +34,7 @@ import { Home, ShoppingCart, UserStar } from "lucide-react";
 
 export const customerRoutes: Route[] = [
   {
-    title: "General Management",
+    title: "Customer Dashboard",
     items: [
       {
         title: "Home",

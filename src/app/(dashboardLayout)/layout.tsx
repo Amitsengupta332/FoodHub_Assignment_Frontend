@@ -77,8 +77,11 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
+import { ROLE } from "@/constants/userRoles";
+import userService from "@/services/user.service";
+import { redirect } from "next/navigation";
 
-export default function DashboardLayout({
+export default async function DashboardLayout({
   admin,
   customer,
   provider,
@@ -87,13 +90,18 @@ export default function DashboardLayout({
   customer: React.ReactNode;
   provider: React.ReactNode;
 }>) {
+  const session = await userService.getSession();
 
-  const userInfo = {
-    role: "admin",
+  const user = session?.user;
+
+  // 🔥 If not logged in → redirect
+  if (!user) {
+    redirect("/login");
   }
+
   return (
     <SidebarProvider>
-      <AppSidebar user={userInfo} />
+      <AppSidebar user={user} />
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
           <SidebarTrigger className="-ml-1" />
@@ -115,13 +123,13 @@ export default function DashboardLayout({
         </header>
         <div className="flex flex-1 flex-col gap-4 p-4">
           {/* {userInfo.role === "admin" ? admin : user} */}
-          {/* {admin} {customer} {provider} */}
-
+          {admin} {customer} {provider}
+          {/* 
           {userInfo.role === "admin"
             ? admin
             : userInfo.role === "customer"
               ? customer
-              : provider}
+              : provider} */}
           {/* {session?.user?.role === ROLE.admin
             ? admin
             : session?.user?.role === ROLE.customer

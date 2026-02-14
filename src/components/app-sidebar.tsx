@@ -22,30 +22,30 @@ import { ROLE } from "@/constants/userRoles";
 import { Route } from "@/types/routes.type";
 
 // This is sample data.
-const data = {
-  versions: ["1.0.1", "1.1.0-alpha", "2.0.0-beta1"],
-  navMain: [
-    {
-      title: "Getting Started",
-      url: "#",
-      items: [
-        {
-          title: "Admin",
-          url: "/admin-dashboard",
-          items: [{ title: "Categories", url: "/admin-dashboard/categories" }],
-        },
-        {
-          title: "Provider Dashboard",
-          url: "/provider-dashboard",
-        },
-        {
-          title: "Project Structure",
-          url: "#",
-        },
-      ],
-    },
-  ],
-};
+// const data = {
+//   versions: ["1.0.1", "1.1.0-alpha", "2.0.0-beta1"],
+//   navMain: [
+//     {
+//       title: "Getting Started",
+//       url: "#",
+//       items: [
+//         {
+//           title: "Admin",
+//           url: "/admin-dashboard",
+//           items: [{ title: "Categories", url: "/admin-dashboard/categories" }],
+//         },
+//         {
+//           title: "Provider Dashboard",
+//           url: "/provider-dashboard",
+//         },
+//         {
+//           title: "Project Structure",
+//           url: "#",
+//         },
+//       ],
+//     },
+//   ],
+// };
 
 export function AppSidebar({
   user,
@@ -55,20 +55,34 @@ export function AppSidebar({
 }) {
   let route: Route[] = [];
 
+  // switch (user.role) {
+  //   case "admin":
+  //     route = adminRoutes;
+  //     break;
+  //   case "customer":
+  //     route = customerRoutes;
+  //     break;
+  //   case "provider":
+  //     route = providerRoutes;
+  //     break;
+  //   default:
+  //     route = [];
+  //     break;
+  // }
+
   switch (user.role) {
-    case "admin":
-      route = adminRoutes;
-      break;
-    case "customer":
-      route = customerRoutes;
-      break;
-    case "provider":
-      route = providerRoutes;
-      break;
-    default:
-      route = [];
-      break;
-  }
+  case ROLE.ADMIN:
+    route = adminRoutes;
+    break;
+  case ROLE.CUSTOMER:
+    route = customerRoutes;
+    break;
+  case ROLE.PROVIDER:
+    route = providerRoutes;
+    break;
+  default:
+    route = [];
+}
 
   // if (user?.role === ROLE.customer) {
   //   route = customerRoutes;

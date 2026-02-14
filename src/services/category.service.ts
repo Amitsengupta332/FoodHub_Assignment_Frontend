@@ -186,34 +186,79 @@
 //   },
 // };
 
+// import { env } from "@/env";
 
+// const API_URL = env.API_URL;
+
+// export const categoryService = {
+//   getAll: async function () {
+//     try {
+//       const res = await fetch(`${API_URL}/api/categories`, {
+//         next: { revalidate: 60 }, // cache 1 min
+//       });
+
+//       if (!res.ok) {
+//         return {
+//           data: null,
+//           error: { message: "Failed to fetch categories" },
+//         };
+//       }
+
+//       const result = await res.json();
+
+//       return { data: result.data, error: null };
+//     } catch (error) {
+//       return {
+//         data: null,
+//         error: { message: "Something went wrong" },
+//       };
+//     }
+//   },
+// };
 
 import { env } from "@/env";
 
-const API_URL = env.API_URL;
-
 export const categoryService = {
-  getAll: async function () {
-    try {
-      const res = await fetch(`${API_URL}/api/categories`, {
-        next: { revalidate: 60 }, // cache 1 min
-      });
+  async getAll() {
+    const res = await fetch(`${env.API_URL}/api/categories`, {
+      cache: "no-store",
+      credentials: "include",
+    });
 
-      if (!res.ok) {
-        return {
-          data: null,
-          error: { message: "Failed to fetch categories" },
-        };
-      }
+    console.log("API URL:", env.API_URL);
 
-      const result = await res.json();
+    return res.json();
+  },
 
-      return { data: result.data, error: null };
-    } catch (error) {
-      return {
-        data: null,
-        error: { message: "Something went wrong" },
-      };
-    }
+  
+  async create(data: { name: string; slug: string }) {
+    const res = await fetch(`${env.API_URL}/api/categories`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify(data),
+    });
+
+    return res.json();
+  },
+
+  async update(id: string, data: { name: string; slug: string }) {
+    const res = await fetch(`${env.API_URL}/api/categories/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify(data),
+    });
+
+    return res.json();
+  },
+
+  async delete(id: string) {
+    const res = await fetch(`${env.API_URL}/api/categories/${id}`, {
+      method: "DELETE",
+      credentials: "include",
+    });
+
+    return res.json();
   },
 };

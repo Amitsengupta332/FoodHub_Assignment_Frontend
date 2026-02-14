@@ -26,9 +26,9 @@ interface Hero7Props {
   };
   className?: string;
 }
-
+// 🍱
 const Hero7 = ({
-  heading = "Discover & Order Delicious Meals from Local Providers 🍱",
+  heading = "Discover & Order Delicious Meals from Local Providers ",
   description = "Browse a wide variety of cuisines, filter by your preferences, and enjoy fast ordering with Cash on Delivery. Support local restaurants while enjoying your favorite meals.",
   button = {
     text: "Browse Meals",
@@ -38,11 +38,12 @@ const Hero7 = ({
     count: 500,
     rating: 4.9,
     avatars: [
-      { src: "/avatars/avatar1.jpg", alt: "Customer 1" },
-      { src: "/avatars/avatar2.jpg", alt: "Customer 2" },
-      { src: "/avatars/avatar3.jpg", alt: "Customer 3" },
-      { src: "/avatars/avatar4.jpg", alt: "Customer 4" },
-      { src: "/avatars/avatar5.jpg", alt: "Customer 5" },
+      // { src: "/avatars/avatar1.jpg", alt: "Customer 1" },
+      { src: "/avatar1.jpg", alt: "Customer 1" },
+      { src: "/avatar2.jpg", alt: "Customer 2" },
+      { src: "/avatar3.jpg", alt: "Customer 3" },
+      { src: "/avatar2.jpg", alt: "Customer 4" },
+      { src: "/avatar5.jpg", alt: "Customer 5" },
     ],
   },
   className,

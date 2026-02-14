@@ -1,5 +1,11 @@
+// export const ROLE = {
+//   admin: "ADMIN",
+//   provider: "PROVIDER",
+//   customer: "CUSTOMER",
+// }; 
+
 export const ROLE = {
-  admin: "ADMIN",
-  provider: "PROVIDER",
-  customer: "CUSTOMER",
-};
+  ADMIN: "ADMIN",
+  CUSTOMER: "CUSTOMER",
+  PROVIDER: "PROVIDER",
+} as const;
