@@ -27,6 +27,8 @@ export interface Category {
   updated_at: string;
 }
 
+//* TODO: add Swal for confirmation
+
 const ManageCategories = (items: any) => {
   const [loading, setLoading] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
@@ -35,46 +37,6 @@ const ManageCategories = (items: any) => {
   const [code, setCode] = useState("");
   const router = useRouter();
   const [currentName, setCurrentName] = useState("");
-  // const handleDelete = async (id: string) => {
-  //   const result = await Swal.fire({
-  //     title: "Are you sure?",
-  //     text: "This category will be permanently deleted!",
-  //     icon: "warning",
-  //     showCancelButton: true,
-  //     confirmButtonColor: "#d33",
-  //     cancelButtonColor: "#6b7280",
-  //     confirmButtonText: "Yes, delete it",
-  //     cancelButtonText: "Cancel",
-  //   });
-
-  //   if (!result.isConfirmed) return;
-
-  //   try {
-  //     const res = await fetch(`${env.API_URL}/api/categories/${id}`, {
-  //       method: "DELETE",
-  //       credentials: "include",
-  //     });
-
-  //     if (!res.ok) throw new Error("Delete failed");
-
-  //     Swal.fire({
-  //       icon: "success",
-  //       title: "Deleted!",
-  //       text: "Category has been deleted successfully.",
-  //       timer: 1500,
-  //       showConfirmButton: false,
-  //     });
-
-  //     router.refresh();
-  //   } catch (error) {
-  //     Swal.fire({
-  //       icon: "error",
-  //       title: "Oops!",
-  //       text: "Failed to delete category. Please try again.",
-  //     });
-  //   }
-  // };
-
   const handleDelete = async (id: string) => {
     const result = await Swal.fire({
       title: "Are you sure?",
@@ -89,17 +51,68 @@ const ManageCategories = (items: any) => {
 
     if (!result.isConfirmed) return;
 
-    const toastId = toast.loading("Deleting...");
+    try {
+      // 🔥 Show loading modal
+      Swal.fire({
+        title: "Deleting...",
+        text: "Please wait while we delete the category.",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
 
-    const res = await deleteCategory(id);
+      const res = await deleteCategory(id);
 
-    if (res.success) {
-      toast.success("Deleted!", { id: toastId });
+      if (!res.success) {
+        throw new Error(res.message || "Delete failed");
+      }
+
+      // ✅ Success popup
+      await Swal.fire({
+        icon: "success",
+        title: "Deleted!",
+        text: "Category has been deleted successfully.",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+
       router.refresh();
-    } else {
-      toast.error(res.message || "Delete failed", { id: toastId });
+    } catch (error: any) {
+      // ❌ Error popup
+      Swal.fire({
+        icon: "error",
+        title: "Oops!",
+        text: error.message || "Failed to delete category.",
+      });
     }
   };
+
+  // const handleDelete = async (id: string) => {
+  //   const result = await Swal.fire({
+  //     title: "Are you sure?",
+  //     text: "This category will be permanently deleted!",
+  //     icon: "warning",
+  //     showCancelButton: true,
+  //     confirmButtonColor: "#d33",
+  //     cancelButtonColor: "#6b7280",
+  //     confirmButtonText: "Yes, delete it",
+  //     cancelButtonText: "Cancel",
+  //   });
+
+  //   if (!result.isConfirmed) return;
+
+  //   const toastId = toast.loading("Deleting...");
+
+  //   const res = await deleteCategory(id);
+
+  //   if (res.success) {
+  //     toast.success("Deleted!", { id: toastId });
+  //     router.refresh();
+  //   } else {
+  //     toast.error(res.message || "Delete failed", { id: toastId });
+  //   }
+  // };
   const handleEdit = (id: string, name: string) => {
     setCatId(id);
     setCurrentName(name);

@@ -1,6 +1,6 @@
 // "use client";
 
-// import React, { useState } from "react";
+// import React, { useEffect, useState } from "react";
 // import { Button } from "@/components/ui/button";
 // import {
 //   Card,
@@ -9,54 +9,44 @@
 //   CardHeader,
 //   CardTitle,
 // } from "@/components/ui/card";
-// import { Textarea } from "@/components/ui/textarea";
-// import { toast } from "sonner";
 // import { Input } from "@/components/ui/input";
-// import { env } from "@/env";
+// import { toast } from "sonner";
 // import { useRouter } from "next/navigation";
+// import { updateCategory } from "@/actions/category.actions";
 
-// interface ReviewModalProps {
+// interface Props {
 //   isOpen: boolean;
 //   onClose: () => void;
-//   category: any;
 //   cat_id: string;
-//   category_code: string;
+//   currentName?: string; // ✅ add
 // }
 
-// const UpdateCategories: React.FC<ReviewModalProps> = ({
+// const UpdateCategories: React.FC<Props> = ({
 //   isOpen,
 //   onClose,
-//   category,
 //   cat_id,
-//   category_code,
+//   currentName,
 // }) => {
 //   const [name, setName] = useState("");
-//   const [description, setDescription] = useState("");
-
 //   const router = useRouter();
 
-//   const UpdateCategories = async () => {
-//     const toastId = toast.loading("Updating category...");
-//     const updatedCategory = {
-//       name,
-//       slug: description,
-//     };
+//   useEffect(() => {
+//     setName(currentName || "");
+//   }, [currentName]);
 
-//     try {
-//       const patchRes = await fetch(`${env.API_URL}/api/categories/${cat_id}`, {
-//         method: "PATCH",
-//         headers: { "Content-Type": "application/json" },
-//         credentials: "include",
-//         body: JSON.stringify(updatedCategory),
-//       });
+//   const handleUpdate = async () => {
+//     if (!name.trim()) return toast.error("Name is required");
 
-//       if (!patchRes.ok) throw new Error("Failed to update category");
+//     const toastId = toast.loading("Updating...");
 
-//       toast.success("Category updated successfully!", { id: toastId });
+//     const res = await updateCategory(cat_id, { name });
+
+//     if (res.success) {
+//       toast.success("Category updated!", { id: toastId });
 //       onClose();
 //       router.refresh();
-//     } catch (err) {
-//       toast.error("Failed to update. Try again.", { id: toastId });
+//     } else {
+//       toast.error(res.message || "Update failed", { id: toastId });
 //     }
 //   };
 
@@ -66,21 +56,19 @@
 //     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
 //       <Card className="w-full max-w-md p-4">
 //         <CardHeader>
-//           <CardTitle>update Category</CardTitle>
+//           <CardTitle>Update Category</CardTitle>
 //         </CardHeader>
+
 //         <CardContent className="space-y-4">
 //           <Input
 //             placeholder="Category Name"
+//             value={name}
 //             onChange={(e) => setName(e.target.value)}
 //           />
-//           <Textarea
-//             placeholder="Description"
-//             onChange={(e) => setDescription(e.target.value)}
-//             rows={4}
-//           />
 //         </CardContent>
+
 //         <CardFooter className="flex gap-2">
-//           <Button className="flex-1" onClick={UpdateCategories}>
+//           <Button className="flex-1" onClick={handleUpdate}>
 //             Update
 //           </Button>
 //           <Button variant="outline" className="flex-1" onClick={onClose}>
@@ -94,25 +82,35 @@
 
 // export default UpdateCategories;
 
-
 "use client";
 
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import Swal from "sweetalert2";
 import { updateCategory } from "@/actions/category.actions";
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
   cat_id: string;
-  currentName?: string; // ✅ add
+  currentName?: string;
 }
 
-const UpdateCategories: React.FC<Props> = ({ isOpen, onClose, cat_id, currentName }) => {
+const UpdateCategories: React.FC<Props> = ({
+  isOpen,
+  onClose,
+  cat_id,
+  currentName,
+}) => {
   const [name, setName] = useState("");
   const router = useRouter();
 
@@ -121,18 +119,61 @@ const UpdateCategories: React.FC<Props> = ({ isOpen, onClose, cat_id, currentNam
   }, [currentName]);
 
   const handleUpdate = async () => {
-    if (!name.trim()) return toast.error("Name is required");
+    if (!name.trim()) {
+      return Swal.fire({
+        icon: "error",
+        title: "Validation Error",
+        text: "Category name is required!",
+      });
+    }
 
-    const toastId = toast.loading("Updating...");
+    // ✅ Confirm
+    const result = await Swal.fire({
+      title: "Update category?",
+      text: "This will update the category name.",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Yes, update",
+      cancelButtonText: "Cancel",
+      reverseButtons: true,
+    });
 
-    const res = await updateCategory(cat_id, { name });
+    if (!result.isConfirmed) return;
 
-    if (res.success) {
-      toast.success("Category updated!", { id: toastId });
+    try {
+      // 🔥 Loading
+      Swal.fire({
+        title: "Updating...",
+        text: "Please wait while we update the category.",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
+
+      const res = await updateCategory(cat_id, { name });
+
+      if (!res.success) {
+        throw new Error(res.message || "Update failed");
+      }
+
+      // ✅ Success
+      await Swal.fire({
+        icon: "success",
+        title: "Updated!",
+        text: "Category updated successfully.",
+        timer: 1400,
+        showConfirmButton: false,
+      });
+
       onClose();
       router.refresh();
-    } else {
-      toast.error(res.message || "Update failed", { id: toastId });
+    } catch (error: any) {
+      Swal.fire({
+        icon: "error",
+        title: "Oops!",
+        text: error.message || "Update failed. Please try again.",
+      });
     }
   };
 

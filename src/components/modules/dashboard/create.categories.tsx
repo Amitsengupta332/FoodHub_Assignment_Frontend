@@ -9,12 +9,10 @@
 //   CardHeader,
 //   CardTitle,
 // } from "@/components/ui/card";
-// import { Textarea } from "@/components/ui/textarea";
 // import { toast } from "sonner";
 // import { Input } from "@/components/ui/input";
 // import { useRouter } from "next/navigation";
 // import { createCategory } from "@/actions/category.actions";
- 
 
 // interface ReviewModalProps {
 //   isOpen: boolean;
@@ -23,23 +21,27 @@
 
 // const CreateCategories: React.FC<ReviewModalProps> = ({ isOpen, onClose }) => {
 //   const [name, setName] = useState("");
-//   const [description, setDescription] = useState("");
-
 //   const router = useRouter();
 
 //   const handleCreate = async () => {
+//     if (!name.trim()) return toast.error("Name is required");
+
 //     const toastId = toast.loading("creating...");
+
 //     const formData = new FormData();
-//     formData.append("name", name);
-//     formData.append("slug", description);
+//     formData.append("name", name); // ✅ only name
 
 //     const result = await createCategory(formData);
+
 //     if (result.success) {
-//       toast.success("Categories created successfully!", { id: toastId });
+//       toast.success("Category created successfully!", { id: toastId });
+//       setName("");
 //       onClose();
 //       router.refresh();
 //     } else {
-//       toast.error("Failed Creation. Try again.");
+//       toast.error(result.message || "Failed Creation. Try again.", {
+//         id: toastId,
+//       });
 //     }
 //   };
 
@@ -51,19 +53,15 @@
 //         <CardHeader>
 //           <CardTitle>Create Category</CardTitle>
 //         </CardHeader>
+
 //         <CardContent className="space-y-4">
 //           <Input
 //             placeholder="Category Name"
 //             value={name}
 //             onChange={(e) => setName(e.target.value)}
 //           />
-//           <Textarea
-//             placeholder="Description"
-//             value={description}
-//             onChange={(e) => setDescription(e.target.value)}
-//             rows={4}
-//           />
 //         </CardContent>
+
 //         <CardFooter className="flex gap-2">
 //           <Button className="flex-1" onClick={handleCreate}>
 //             Create
@@ -79,43 +77,91 @@
 
 // export default CreateCategories;
 
- 
 "use client";
 
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { toast } from "sonner";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
+import Swal from "sweetalert2";
 import { createCategory } from "@/actions/category.actions";
 
-interface ReviewModalProps {
+interface Props {
   isOpen: boolean;
   onClose: () => void;
 }
 
-const CreateCategories: React.FC<ReviewModalProps> = ({ isOpen, onClose }) => {
+const CreateCategories: React.FC<Props> = ({ isOpen, onClose }) => {
   const [name, setName] = useState("");
   const router = useRouter();
 
   const handleCreate = async () => {
-    if (!name.trim()) return toast.error("Name is required");
+    if (!name.trim()) {
+      return Swal.fire({
+        icon: "error",
+        title: "Validation Error",
+        text: "Category name is required!",
+      });
+    }
 
-    const toastId = toast.loading("creating...");
+    // ✅ Confirm
+    const result = await Swal.fire({
+      title: "Create category?",
+      text: `Category name: "${name}"`,
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Yes, create",
+      cancelButtonText: "Cancel",
+      reverseButtons: true,
+    });
 
-    const formData = new FormData();
-    formData.append("name", name); // ✅ only name
+    if (!result.isConfirmed) return;
 
-    const result = await createCategory(formData);
+    try {
+      // 🔥 Loading
+      Swal.fire({
+        title: "Creating...",
+        text: "Please wait while we create the category.",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
 
-    if (result.success) {
-      toast.success("Category created successfully!", { id: toastId });
+      const formData = new FormData();
+      formData.append("name", name);
+
+      const res = await createCategory(formData);
+
+      if (!res.success) {
+        throw new Error(res.message || "Creation failed");
+      }
+
+      // ✅ Success
+      await Swal.fire({
+        icon: "success",
+        title: "Created!",
+        text: "Category created successfully.",
+        timer: 1400,
+        showConfirmButton: false,
+      });
+
       setName("");
       onClose();
       router.refresh();
-    } else {
-      toast.error(result.message || "Failed Creation. Try again.", { id: toastId });
+    } catch (error: any) {
+      Swal.fire({
+        icon: "error",
+        title: "Oops!",
+        text: error.message || "Failed to create category. Please try again.",
+      });
     }
   };
 

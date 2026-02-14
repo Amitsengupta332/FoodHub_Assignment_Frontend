@@ -42,28 +42,28 @@ const userService = {
   //     return { seesion: null, message: error.message };
   //   }
   // },
-getCurrentUser: async () => {
-  const cookieStore = await cookies();
+  getCurrentUser: async () => {
+    const cookieStore = await cookies();
 
-  try {
-    const res = await fetch(`${API_URL}/api/auth/get-session`, {
-      headers: {
-        cookie: cookieStore.toString(),
-      },
-      cache: "no-store",
-    });
+    try {
+      const res = await fetch(`${API_URL}/api/auth/get-session`, {
+        headers: {
+          cookie: cookieStore.toString(),
+        },
+        cache: "no-store",
+      });
 
-    if (!res.ok) {
+      if (!res.ok) {
+        return null;
+      }
+
+      const session = await res.json();
+
+      return session?.user ?? null;
+    } catch (error: any) {
       return null;
     }
-
-    const session = await res.json();
-
-    return session?.user ?? null;
-  } catch (error: any) {
-    return null;
-  }
-},
+  },
 
   getAllUsers: async () => {
     const cookieStore = await cookies();
