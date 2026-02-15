@@ -31,7 +31,7 @@
 
 
 import { Route } from "@/types";
-import { Hamburger, Home,  ShoppingCart } from "lucide-react";
+import { Hamburger, Home,  Plus,  ShoppingCart,  } from "lucide-react";
 
 export const providerRoutes: Route[] = [
   {
@@ -42,6 +42,11 @@ export const providerRoutes: Route[] = [
         url: "/provider-dashboard",
         icon: Home,
       },
+      {
+        title: "Profile",
+        url: "/provider-dashboard/providerprofile",
+        icon: Home,
+      },
     ],
   },
   {
@@ -49,8 +54,13 @@ export const providerRoutes: Route[] = [
     items: [
       {
         title: "Meals",
-        url: "/provider-dashboard/meals",
+        url: "/provider-dashboard/viewmenu",
         icon: Hamburger,
+      },
+      {
+        title: "Add Menu",
+        url: "/provider-dashboard/addmenu",
+        icon: Plus,
       },
     ],
   },
@@ -59,7 +69,7 @@ export const providerRoutes: Route[] = [
     items: [
       {
         title: "Orders",
-        url: "/provider-dashboard/orders",
+        url: "/provider-dashboard/order",
         icon: ShoppingCart,
       },
     ],

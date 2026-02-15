@@ -69,6 +69,7 @@ const Navbar1 = ({
   menu = [
     { title: "Home", url: "/" },
     { title: "Meals", url: "/meals" },
+    { title: "Restaurants", url: "/restaurants" },
     // { title: "Dashboard", url: "/dashboard" },
   ],
   auth = {
