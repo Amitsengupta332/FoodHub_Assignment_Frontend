@@ -4,9 +4,7 @@ import { cookies } from "next/headers";
 const API_URL = env.API_URL;
 
 export const mealService = {
-  /**
-   * PUBLIC - Get all meals (filters supported)
-   */
+
   async getAll(params?: {
     search?: string;
     categoriesId?: string;
@@ -39,9 +37,6 @@ export const mealService = {
     }
   },
 
-  /**
-   * PUBLIC - Get meal details
-   */
   async getById(id: string) {
     try {
       const res = await fetch(`${API_URL}/api/meals/${id}`, {
@@ -60,9 +55,6 @@ export const mealService = {
     }
   },
 
-  /**
-   * PROVIDER - Get own meals
-   */
   async getProviderMeals() {
     try {
       const cookieStore = await cookies();
@@ -89,9 +81,6 @@ export const mealService = {
     }
   },
 
-  /**
-   * PROVIDER - Create meal
-   */
   async create(data: {
     name: string;
     description: string;
@@ -127,9 +116,6 @@ export const mealService = {
     }
   },
 
-  /**
-   * PROVIDER - Update meal
-   */
   async update(payload: {
     id: string;
     name?: string;
@@ -168,9 +154,6 @@ export const mealService = {
     }
   },
 
-  /**
-   * PROVIDER - Delete meal
-   */
   async delete(id: string) {
     try {
       const cookieStore = await cookies();

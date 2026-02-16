@@ -1,7 +1,13 @@
+import { getProviderMeals } from '@/actions/meal.actions';
+import ProviderMenuTable from '@/components/modules/dashboard/provider/provider-menu-table';
 import React from 'react'
 
-export default function ViewMenuProvider() {
+export default async function ViewMenuProvider() {
+  const meals = await getProviderMeals();
+
   return (
-    <div>ViewMenuProvider</div>
-  )
+    <div className="p-6">
+      <ProviderMenuTable meals={meals?.data || []} />
+    </div>
+  );
 }

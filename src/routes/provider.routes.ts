@@ -53,7 +53,7 @@ export const providerRoutes: Route[] = [
     title: "Meal Management",
     items: [
       {
-        title: "Meals",
+        title: "View Menu",
         url: "/provider-dashboard/viewmenu",
         icon: Hamburger,
       },

@@ -1,7 +1,13 @@
-import React from 'react'
+import { getCategories } from "@/actions/category.actions";
+import { CreateMealForm } from "@/components/modules/dashboard/provider/addMenu";
+import React from "react";
 
-export default function AddMenu() {
+export default async function AddMenu() {
+  const categoriesData = await getCategories();
+
   return (
-    <div>AddMenu</div>
-  )
+    <div className="p-6">
+      <CreateMealForm categoriesData={categoriesData} />
+    </div>
+  );
 }
