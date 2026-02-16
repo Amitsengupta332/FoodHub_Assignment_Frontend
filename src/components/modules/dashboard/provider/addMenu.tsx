@@ -2,8 +2,8 @@
 
 import * as React from "react";
 import { useForm } from "@tanstack/react-form";
-import { toast } from "sonner";
 import * as z from "zod";
+import Swal from "sweetalert2";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -14,12 +14,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Field,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-} from "@/components/ui/field";
+import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import {
   InputGroup,
@@ -63,23 +58,70 @@ export function CreateMealForm({ categoriesData }: any) {
       onSubmit: mealSchema,
     },
     onSubmit: async ({ value }) => {
-      const payload = {
-        name: value.name,
-        description: value.description,
-        price: value.price,
-        image: value.image,
-        categoryId: value.categoryId,
-        isAvailable: value.isAvailable,
-      };
+      // ✅ Confirm before creating
+      const result = await Swal.fire({
+        title: "Create this meal?",
+        html: `
+          <div style="text-align:left;">
+            <p><b>Name:</b> ${value.name}</p>
+            <p><b>Price:</b> $${value.price}</p>
+            <p><b>Available:</b> ${value.isAvailable ? "Yes" : "No"}</p>
+          </div>
+        `,
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: "Yes, create",
+        cancelButtonText: "Cancel",
+        confirmButtonColor: "#16a34a",
+        cancelButtonColor: "#6b7280",
+        reverseButtons: true,
+      });
 
-      const result = await createMeal(payload);
+      if (!result.isConfirmed) return;
 
-      if (result?.data && !result?.error) {
-        toast.success("Meal created successfully!");
+      try {
+        // 🔥 Loading
+        Swal.fire({
+          title: "Creating...",
+          text: "Please wait while we create the meal.",
+          allowOutsideClick: false,
+          didOpen: () => {
+            Swal.showLoading();
+          },
+        });
+
+        const payload = {
+          name: value.name,
+          description: value.description,
+          price: value.price,
+          image: value.image,
+          categoryId: value.categoryId,
+          isAvailable: value.isAvailable,
+        };
+
+        const apiRes = await createMeal(payload);
+
+        if (apiRes?.error) {
+          throw new Error(apiRes.error.message || "Failed to create meal");
+        }
+
+        // ✅ Success
+        await Swal.fire({
+          icon: "success",
+          title: "Created!",
+          text: "Meal created successfully.",
+          timer: 1400,
+          showConfirmButton: false,
+        });
+
         form.reset();
         router.refresh();
-      } else {
-        toast.error(result?.error?.message || "Failed to create meal");
+      } catch (err: any) {
+        Swal.fire({
+          icon: "error",
+          title: "Oops!",
+          text: err.message || "Failed to create meal",
+        });
       }
     },
   });
@@ -88,9 +130,7 @@ export function CreateMealForm({ categoriesData }: any) {
     <Card className="w-full sm:max-w-2xl mx-auto mt-5">
       <CardHeader>
         <CardTitle>Create Meal</CardTitle>
-        <CardDescription>
-          Fill in the details to add a new meal.
-        </CardDescription>
+        <CardDescription>Fill in the details to add a new meal.</CardDescription>
       </CardHeader>
 
       <CardContent>
@@ -100,7 +140,8 @@ export function CreateMealForm({ categoriesData }: any) {
             e.preventDefault();
             form.handleSubmit(e);
           }}
-          className="space-y-4">
+          className="space-y-4"
+        >
           <FieldGroup>
             {/* Name */}
             <form.Field
@@ -120,9 +161,7 @@ export function CreateMealForm({ categoriesData }: any) {
                       placeholder="Japanese Food"
                       autoComplete="off"
                     />
-                    {isInvalid && (
-                      <FieldError errors={field.state.meta.errors} />
-                    )}
+                    {isInvalid && <FieldError errors={field.state.meta.errors} />}
                   </Field>
                 );
               }}
@@ -155,9 +194,7 @@ export function CreateMealForm({ categoriesData }: any) {
                         </InputGroupText>
                       </InputGroupAddon>
                     </InputGroup>
-                    {isInvalid && (
-                      <FieldError errors={field.state.meta.errors} />
-                    )}
+                    {isInvalid && <FieldError errors={field.state.meta.errors} />}
                   </Field>
                 );
               }}
@@ -189,9 +226,7 @@ export function CreateMealForm({ categoriesData }: any) {
               children={(field) => (
                 <div>
                   <FieldLabel htmlFor={field.name}>Category</FieldLabel>
-                  <Select
-                    onValueChange={field.handleChange}
-                    value={field.state.value}>
+                  <Select onValueChange={field.handleChange} value={field.state.value}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select category" />
                     </SelectTrigger>
@@ -210,7 +245,7 @@ export function CreateMealForm({ categoriesData }: any) {
               )}
             />
 
-            {/* ✅ Image URL (No Upload) */}
+            {/* Image URL */}
             <form.Field
               name="image"
               children={(field) => {
@@ -230,7 +265,6 @@ export function CreateMealForm({ categoriesData }: any) {
                       autoComplete="off"
                     />
 
-                    {/* Preview */}
                     {field.state.value && (
                       <img
                         src={field.state.value}
@@ -239,9 +273,7 @@ export function CreateMealForm({ categoriesData }: any) {
                       />
                     )}
 
-                    {isInvalid && (
-                      <FieldError errors={field.state.meta.errors} />
-                    )}
+                    {isInvalid && <FieldError errors={field.state.meta.errors} />}
                   </Field>
                 );
               }}
