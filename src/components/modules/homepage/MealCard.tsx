@@ -47,10 +47,7 @@ export default function MealCard({ meal }: any) {
           <p className="text-xs mt-1">
             Status:{" "}
             <span
-              className={
-                meal.isAvailable ? "text-green-600" : "text-red-600"
-              }
-            >
+              className={meal.isAvailable ? "text-green-600" : "text-red-600"}>
               {meal.isAvailable ? "Available" : "Unavailable"}
             </span>
           </p>
@@ -59,7 +56,7 @@ export default function MealCard({ meal }: any) {
 
       {/* FOOTER */}
       <CardFooter>
-        <Link href={`/meals/${meal.id}`} className="w-full">
+        <Link href={`/meals/${meal?.id}`} className="w-full">
           <Button className="w-full">View Details</Button>
         </Link>
       </CardFooter>

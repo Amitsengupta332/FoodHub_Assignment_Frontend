@@ -36,24 +36,46 @@ export const mealService = {
       return { data: null, error: { message: "Something went wrong" } };
     }
   },
-
   async getById(id: string) {
-    try {
-      const res = await fetch(`${API_URL}/api/meals/${id}`, {
-        next: { revalidate: 30 },
-      });
+  try {
+    const res = await fetch(`${API_URL}/api/meals/${id}`, {
+      cache: "no-store",
+    });
 
-      if (!res.ok) {
-        return { data: null, error: { message: "Meal not found" } };
-      }
+    const result = await res.json().catch(() => null);
 
-      const result = await res.json();
-
-      return { data: result.data, error: null };
-    } catch (error) {
-      return { data: null, error: { message: "Something went wrong" } };
+    if (!res.ok) {
+      return {
+        data: null,
+        error: { message: result?.message || "Meal not found" },
+      };
     }
-  },
+
+    return { data: result.data, error: null };
+  } catch {
+    return { data: null, error: { message: "Something went wrong" } };
+  }
+},
+
+
+  
+  // async getById(id: string) {
+  //   try {
+  //     const res = await fetch(`${API_URL}/api/meals/${id}`, {
+  //       next: { revalidate: 30 },
+  //     });
+
+  //     if (!res.ok) {
+  //       return { data: null, error: { message: "Meal not found" } };
+  //     }
+
+  //     const result = await res.json();
+
+  //     return { data: result.data, error: null };
+  //   } catch (error) {
+  //     return { data: null, error: { message: "Something went wrong" } };
+  //   }
+  // },
 
   async getProviderMeals() {
     try {

@@ -4,11 +4,11 @@ import { mealService } from "@/services/meal.service";
 
 export async function getMeals(params?: {
   search?: string;
-  categoriesId?: string;
+  categoriesId?: string; 
   maxPrice?: number;
 }) {
-  return mealService.getAll(params);
-}
+  return mealService.getAll(params); 
+} 
 
 export async function getMealDetails(id: string) {
   return mealService.getById(id);

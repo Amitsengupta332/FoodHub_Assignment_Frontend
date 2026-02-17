@@ -57,10 +57,11 @@
 import { getMeals } from "@/actions/meal.actions";
 import MealCard from "@/components/modules/homepage/MealCard";
  
-
+  
 export default async function MealsPage() {
   const { data } = await getMeals();
-
+ 
+  
   return (
     <section className="container mx-auto px-4 py-12">
       <h1 className="text-3xl font-bold mb-8 text-center">
@@ -74,4 +75,4 @@ export default async function MealsPage() {
       </div>
     </section>
   );
-}
+} 
