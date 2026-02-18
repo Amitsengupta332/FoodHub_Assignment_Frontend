@@ -13,7 +13,7 @@ export default function OrdersList({ orders }: any) {
     const mealId = order.items[0]?.mealId; // simple case
     // ${API_URL}/api/meals/${id} env.API_URL;
 
-    const res = await fetch(`${env.API_URL}/api/reviews`, {
+    const res = await fetch(`${env.API_URL}/api/review`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",

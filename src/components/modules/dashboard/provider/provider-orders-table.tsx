@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import Swal from "sweetalert2";
 
 import {
   updateOrderStatus,
@@ -28,21 +28,67 @@ export default function ProviderOrdersTable({
   const router = useRouter();
   const [loadingId, setLoadingId] = useState<string | null>(null);
 
-  const handleUpdate = async (orderId: string, status: OrderStatus) => {
-    setLoadingId(orderId);
+  const handleUpdate = async (order: any, next: OrderStatus) => {
+    const current: OrderStatus = order.status;
 
-    const toastId = toast.loading("Updating status...");
+    // ✅ Confirm
+    const result = await Swal.fire({
+      title: "Update order status?",
+      html: `
+        <div style="text-align:left;">
+          <p><b>Order:</b> ${order?.id?.slice(0, 8) ?? "N/A"}...</p>
+          <p><b>Customer:</b> ${order?.user?.name ?? "N/A"}</p>
+          <p><b>Total:</b> $${order?.total ?? "N/A"}</p>
+          <p style="margin-top:8px;"><b>Status:</b> ${current} → <b>${next}</b></p>
+        </div>
+      `,
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: `Yes, mark ${next}`,
+      cancelButtonText: "Cancel",
+      confirmButtonColor: "#16a34a",
+      cancelButtonColor: "#6b7280",
+      reverseButtons: true,
+    });
 
-    const res = await updateOrderStatus(orderId, status);
+    if (!result.isConfirmed) return;
 
-    if (res.success) {
-      toast.success("Status updated ✅", { id: toastId });
+    try {
+      setLoadingId(order.id);
+
+      // 🔥 Loading
+      Swal.fire({
+        title: "Updating...",
+        text: "Please wait while we update the order status.",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+      });
+
+      const res = await updateOrderStatus(order.id, next);
+
+      if (!res.success) {
+        throw new Error(res.message || "Failed to update status");
+      }
+
+      // ✅ Success
+      await Swal.fire({
+        icon: "success",
+        title: "Updated!",
+        text: `Order marked as ${next} ✅`,
+        timer: 1400,
+        showConfirmButton: false,
+      });
+
       router.refresh();
-    } else {
-      toast.error(res.message || "Failed", { id: toastId });
+    } catch (error: any) {
+      Swal.fire({
+        icon: "error",
+        title: "Oops!",
+        text: error.message || "Something went wrong.",
+      });
+    } finally {
+      setLoadingId(null);
     }
-
-    setLoadingId(null);
   };
 
   return (
@@ -87,16 +133,13 @@ export default function ProviderOrdersTable({
                       <Button
                         size="sm"
                         disabled={loadingId === order.id}
-                        onClick={() => handleUpdate(order.id, next)}
-                      >
+                        onClick={() => handleUpdate(order, next)}>
                         {loadingId === order.id
                           ? "Updating..."
                           : `Mark ${next}`}
                       </Button>
                     ) : (
-                      <span className="text-xs text-gray-500">
-                        No Action
-                      </span>
+                      <span className="text-xs text-gray-500">No Action</span>
                     )}
                   </td>
                 </tr>
