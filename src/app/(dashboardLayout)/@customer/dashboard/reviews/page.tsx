@@ -2,7 +2,7 @@
 
 import { env } from "@/env";
 import { useState } from "react";
-import { toast } from "sonner";
+import Swal from "sweetalert2";
 
 export default function OrdersList({ orders }: any) {
   const [reviewingId, setReviewingId] = useState<string | null>(null);
@@ -10,27 +10,92 @@ export default function OrdersList({ orders }: any) {
   const [comment, setComment] = useState("");
 
   const submitReview = async (order: any) => {
-    const mealId = order.items[0]?.mealId; // simple case
-    // ${API_URL}/api/meals/${id} env.API_URL;
+    const mealId = order.items?.[0]?.mealId;
 
-    const res = await fetch(`${env.API_URL}/api/review`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({
-        mealId,
-        rating,
-        comment,
-      }),
+    if (!mealId) {
+      return Swal.fire({
+        icon: "error",
+        title: "Missing Meal",
+        text: "Meal ID not found for this order.",
+      });
+    }
+
+    if (!comment.trim()) {
+      return Swal.fire({
+        icon: "error",
+        title: "Validation Error",
+        text: "Comment is required.",
+      });
+    }
+
+    if (rating < 1 || rating > 5) {
+      return Swal.fire({
+        icon: "error",
+        title: "Validation Error",
+        text: "Rating must be between 1 and 5.",
+      });
+    }
+
+    // ✅ Confirm
+    const result = await Swal.fire({
+      title: "Submit review?",
+      html: `
+        <div style="text-align:left;">
+          <p><b>Rating:</b> ${rating}/5</p>
+          <p style="margin-top:8px;"><b>Comment:</b> ${comment}</p>
+        </div>
+      `,
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Yes, submit",
+      cancelButtonText: "Cancel",
+      confirmButtonColor: "#16a34a",
+      cancelButtonColor: "#6b7280",
+      reverseButtons: true,
     });
 
-    const data = await res.json();
+    if (!result.isConfirmed) return;
 
-    if (!res.ok) {
-      toast.error(data.message || "Review failed");
-    } else {
-      toast.success("Review submitted!");
+    try {
+      // 🔥 Loading
+      Swal.fire({
+        title: "Submitting...",
+        text: "Please wait while we submit your review.",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+      });
+
+      const res = await fetch(`${env.API_URL}/api/review`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ mealId, rating, comment }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "Review failed");
+      }
+
+      // ✅ Success
+      await Swal.fire({
+        icon: "success",
+        title: "Submitted!",
+        text: "Your review has been submitted successfully.",
+        timer: 1400,
+        showConfirmButton: false,
+      });
+
       setReviewingId(null);
+      setRating(5);
+      setComment("");
+    } catch (error: any) {
+      Swal.fire({
+        icon: "error",
+        title: "Oops!",
+        text: error.message || "Failed to submit review.",
+      });
     }
   };
 
@@ -73,14 +138,27 @@ export default function OrdersList({ orders }: any) {
 
                       <button
                         className="bg-black text-white px-3 py-1 rounded text-sm"
-                        onClick={() => submitReview(o)}>
+                        onClick={() => submitReview(o)}
+                      >
                         Submit Review
+                      </button>
+
+                      <button
+                        className="text-sm text-gray-600 ml-2"
+                        onClick={() => {
+                          setReviewingId(null);
+                          setRating(5);
+                          setComment("");
+                        }}
+                      >
+                        Cancel
                       </button>
                     </div>
                   ) : (
                     <button
                       className="mt-2 text-sm text-blue-600"
-                      onClick={() => setReviewingId(o.id)}>
+                      onClick={() => setReviewingId(o.id)}
+                    >
                       Leave Review
                     </button>
                   )}

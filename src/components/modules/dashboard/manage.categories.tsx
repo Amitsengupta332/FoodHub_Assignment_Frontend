@@ -9,7 +9,7 @@ import {
   CardTitle,
   CardFooter,
 } from "@/components/ui/card";
- 
+
 import { useRouter } from "next/navigation";
 
 import Swal from "sweetalert2";
@@ -86,31 +86,6 @@ const ManageCategories = (items: any) => {
     }
   };
 
-  // const handleDelete = async (id: string) => {
-  //   const result = await Swal.fire({
-  //     title: "Are you sure?",
-  //     text: "This category will be permanently deleted!",
-  //     icon: "warning",
-  //     showCancelButton: true,
-  //     confirmButtonColor: "#d33",
-  //     cancelButtonColor: "#6b7280",
-  //     confirmButtonText: "Yes, delete it",
-  //     cancelButtonText: "Cancel",
-  //   });
-
-  //   if (!result.isConfirmed) return;
-
-  //   const toastId = toast.loading("Deleting...");
-
-  //   const res = await deleteCategory(id);
-
-  //   if (res.success) {
-  //     toast.success("Deleted!", { id: toastId });
-  //     router.refresh();
-  //   } else {
-  //     toast.error(res.message || "Delete failed", { id: toastId });
-  //   }
-  // };
   const handleEdit = (id: string, name: string) => {
     setCatId(id);
     setCurrentName(name);
