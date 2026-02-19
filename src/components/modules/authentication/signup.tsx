@@ -1,6 +1,6 @@
 "use client";
-
 import { Button } from "@/components/ui/button";
+
 import * as z from "zod";
 import {
   Card,
@@ -21,6 +21,7 @@ import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "@tanstack/react-form";
+
 import { authClient } from "@/lib/auth-client";
 import {
   Select,
@@ -30,31 +31,51 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import Swal from "sweetalert2";
-
 const registerSchema = z.object({
   name: z.string().min(1, "This field is required"),
-  email: z.string().email("Invalid email"),
   password: z.string().min(8, "Minimum length is 8"),
-  role: z.enum(["CUSTOMER", "PROVIDER"], {
-    required_error: "Role is required",
-  }),
+  email: z.email(),
 });
 
 export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
   const router = useRouter();
-
   const form = useForm({
     defaultValues: {
       name: "",
       email: "",
       password: "",
-      role: "" as any, // keep simple
     },
     validators: {
       onSubmit: registerSchema,
     },
+    // onSubmit: async ({ value }) => {
+    //   const toastId = toast.loading("Creating user");
+    //   try {
+    //     const { data, error } = await authClient.signUp.email(value);
+
+    //     // if (error) {
+    //     //   toast.error(error.message, { id: toastId });
+    //     //   return;
+    //     // }
+
+    //     if (error && data === null) {
+    //       toast.error(error.message, { id: toastId });
+    //     }
+    //     if (data !== null) {
+    //       toast.success(`signup successfully`, { id: toastId });
+    //       router.push("/");
+    //       router.refresh();
+    //     }
+
+    //     toast.success("User Created Successfully", { id: toastId });
+    //   } catch (err) {
+    //     toast.error("Something went wrong, please try again.", { id: toastId });
+    //   }
+    // },
+
     onSubmit: async ({ value }) => {
       try {
+        // 🔄 Loading popup
         Swal.fire({
           title: "Creating Account...",
           text: "Please wait while we create your account.",
@@ -64,38 +85,29 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
           },
         });
 
-        const { data, error } = await authClient.signUp.email({
-          name: value.name,
-          email: value.email,
-          password: value.password,
-          role: value.role, // ✅ role required
-        });
+        const { data, error } = await authClient.signUp.email(value);
 
-        if (error || data === null) {
+        if (error && data === null) {
           Swal.fire({
             icon: "error",
             title: "Signup Failed",
-            text: error?.message || "Signup failed",
+            text: error.message,
           });
           return;
         }
 
-        await Swal.fire({
-          icon: "success",
-          title: "Account Created 🎉",
-          text: "Your account has been created successfully!",
-          timer: 1500,
-          showConfirmButton: false,
-        });
+        if (data !== null) {
+          await Swal.fire({
+            icon: "success",
+            title: "Account Created 🎉",
+            text: "Your account has been created successfully!",
+            timer: 1500,
+            showConfirmButton: false,
+          });
 
-        // ✅ Optional redirect based on role
-        if (value.role === "PROVIDER") {
-          // router.push("/provider/dashboard");
-          router.push("/provider-dashboard");
-        } else {
           router.push("/");
+          router.refresh();
         }
-        router.refresh();
       } catch (err) {
         Swal.fire({
           icon: "error",
@@ -105,7 +117,6 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
       }
     },
   });
-
   return (
     <Card {...props}>
       <CardHeader>
@@ -114,25 +125,21 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
           Enter your information below to create your account
         </CardDescription>
       </CardHeader>
-
       <CardContent>
         <form
           id="register-form"
           onSubmit={(e) => {
             e.preventDefault();
             form.handleSubmit();
-          }}
-        >
+          }}>
           <FieldGroup>
-            {/* Name */}
             <form.Field
               name="name"
               children={(field) => {
                 const isInvalid =
                   field.state.meta.isTouched && !field.state.meta.isValid;
-
                 return (
-                  <Field data-invalid={isInvalid}>
+                  <Field>
                     <FieldLabel htmlFor={field.name}>Name</FieldLabel>
                     <Input
                       type="text"
@@ -140,7 +147,6 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
                       name={field.name}
                       value={field.state.value}
                       placeholder="Enter Your Name"
-                      onBlur={field.handleBlur}
                       onChange={(e) => field.handleChange(e.target.value)}
                     />
                     {isInvalid && (
@@ -150,16 +156,13 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
                 );
               }}
             />
-
-            {/* Email */}
             <form.Field
               name="email"
               children={(field) => {
                 const isInvalid =
                   field.state.meta.isTouched && !field.state.meta.isValid;
-
                 return (
-                  <Field data-invalid={isInvalid}>
+                  <Field>
                     <FieldLabel htmlFor={field.name}>Email</FieldLabel>
                     <Input
                       type="email"
@@ -167,7 +170,6 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
                       name={field.name}
                       placeholder="Enter Your Email"
                       value={field.state.value}
-                      onBlur={field.handleBlur}
                       onChange={(e) => field.handleChange(e.target.value)}
                     />
                     {isInvalid && (
@@ -177,8 +179,6 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
                 );
               }}
             />
-
-            {/* Password */}
             <form.Field
               name="password"
               children={(field) => {
@@ -186,7 +186,7 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
                   field.state.meta.isTouched && !field.state.meta.isValid;
 
                 return (
-                  <Field data-invalid={isInvalid}>
+                  <Field>
                     <FieldLabel htmlFor={field.name}>Password</FieldLabel>
                     <Input
                       type="password"
@@ -194,7 +194,6 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
                       name={field.name}
                       placeholder="Enter Your Password"
                       value={field.state.value}
-                      onBlur={field.handleBlur}
                       onChange={(e) => field.handleChange(e.target.value)}
                     />
                     {isInvalid && (
@@ -204,26 +203,22 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
                 );
               }}
             />
-
-            {/* Role */}
-            <form.Field
+            {/* <form.Field
               name="role"
               children={(field) => {
                 const isInvalid =
                   field.state.meta.isTouched && !field.state.meta.isValid;
 
                 return (
-                  <Field data-invalid={isInvalid}>
+                  <Field>
                     <FieldLabel htmlFor={field.name}>Register As</FieldLabel>
 
                     <Select
                       value={field.state.value}
-                      onValueChange={(value) => field.handleChange(value)}
-                    >
+                      onValueChange={(value) => field.handleChange(value)}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select Role" />
                       </SelectTrigger>
-
                       <SelectContent>
                         <SelectItem value="CUSTOMER">Customer</SelectItem>
                         <SelectItem value="PROVIDER">Provider</SelectItem>
@@ -236,14 +231,13 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
                   </Field>
                 );
               }}
-            />
+            /> */}
 
-            <CardFooter className="p-0 pt-2">
-              <Button className="w-full" type="submit">
-                Create Account
+            <CardFooter>
+              <Button className="w-full" id="register-form" type="submit">
+                Create Acconunt
               </Button>
             </CardFooter>
-
             <FieldDescription className="text-center">
               Already have an account? <Link href="/login">Sign in</Link>
             </FieldDescription>
