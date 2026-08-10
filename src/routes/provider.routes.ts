@@ -30,7 +30,8 @@
 // ];
 
 
-import { Route } from "@/types";
+// import { Route } from "@/types";
+import { Route } from "@/types/routes.type";
 import { Hamburger, Home,  Plus,  ShoppingCart,  } from "lucide-react";
 
 export const providerRoutes: Route[] = [

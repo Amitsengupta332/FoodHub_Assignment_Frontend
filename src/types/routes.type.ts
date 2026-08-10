@@ -1,3 +1,4 @@
+// 
 import { LucideIcon } from "lucide-react";
 
 export type Route = {
@@ -5,6 +6,6 @@ export type Route = {
   items: {
     title: string;
     url: string;
-    icon?: LucideIcon; 
+    icon?: LucideIcon;
   }[];
 };

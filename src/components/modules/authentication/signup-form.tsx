@@ -35,8 +35,11 @@ const registerSchema = z.object({
   name: z.string().min(1, "This field is required"),
   email: z.string().email("Invalid email"),
   password: z.string().min(8, "Minimum length is 8"),
+  // role: z.enum(["CUSTOMER", "PROVIDER"], {
+  //   required_error: "Role is required",
+  // }),
   role: z.enum(["CUSTOMER", "PROVIDER"], {
-    required_error: "Role is required",
+    message: "Role is required",
   }),
 });
 
@@ -64,12 +67,19 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
           },
         });
 
+        // const { data, error } = await authClient.signUp.email({
+        //   name: value.name,
+        //   email: value.email,
+        //   password: value.password,
+        //   role: value.role, // ✅ role required
+        // });
+
         const { data, error } = await authClient.signUp.email({
           name: value.name,
           email: value.email,
           password: value.password,
-          role: value.role, // ✅ role required
-        });
+          role: value.role,
+        } as any);
 
         if (error || data === null) {
           Swal.fire({
@@ -121,8 +131,7 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
           onSubmit={(e) => {
             e.preventDefault();
             form.handleSubmit();
-          }}
-        >
+          }}>
           <FieldGroup>
             {/* Name */}
             <form.Field
@@ -218,8 +227,7 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
 
                     <Select
                       value={field.state.value}
-                      onValueChange={(value) => field.handleChange(value)}
-                    >
+                      onValueChange={(value) => field.handleChange(value)}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select Role" />
                       </SelectTrigger>
